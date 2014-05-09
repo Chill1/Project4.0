@@ -14,6 +14,7 @@ public class Game {
     public static int currentLocale = 0;            // Player starts in locale 0.
     public static String command;                   // What the player types as he or she plays the game.
     public static boolean stillPlaying = true;      // Controls the game loop.
+    private static boolean stillInGame = true;
     public static Items[] interaction;
     public static Items[] taken;
     public static Locale[] locations;               // An uninitialized array of type Locale. See init() for initialization.
@@ -21,10 +22,7 @@ public class Game {
     public static int[][]  nav;                     // An uninitialized array of type int int.
     public static int moves = 0;                    // Counter of the player's moves.
     public static int score = 0;                    // Tracker of the player's score.
-    public static double money = 10;                    // Keeps track of player's money.
-
-
-
+    public static double money = 25;                    // Keeps track of player's money.
 
 
 
@@ -52,6 +50,7 @@ public class Game {
             getCommand();
             navigate();
             updateDisplay();
+            endgame();
         }
 
         // We're done. Thank the player and exit.
@@ -193,6 +192,7 @@ public class Game {
 
 
 
+
         //Item array
         interaction = new Items[10];
         interaction[0] = item0;
@@ -248,6 +248,8 @@ public class Game {
 
 
 
+
+
         if (DEBUGGING) {
             System.out.println("All game locations:");
             for (int i = 0; i < locations.length; ++i) {
@@ -259,12 +261,15 @@ public class Game {
 
 
     private static void updateDisplay() {
+
         System.out.println("\nLocation: " + locations[currentLocale].getName());
         System.out.println(locations[currentLocale].getDesc());
+        System.out.print("[" + moves + " moves, Score: " + score + ", Current Gold: " + money + "] \n");
+
     }
 
     private static void getCommand() {
-        System.out.print("[" + moves + " moves, Score: " + score + ", Current Gold: " + money + "] \n");
+
         Scanner inputReader = new Scanner(System.in);
         command = inputReader.nextLine();  // command is global.
     }
@@ -282,7 +287,7 @@ public class Game {
         } else if ( command.equalsIgnoreCase("west")  || command.equalsIgnoreCase("w") ) {
             newLocation = locations[currentLocale].getWest();
         } else if ( command.equalsIgnoreCase("quit")  || command.equalsIgnoreCase("q")) {
-            quit();
+            stillInGame = false;
         } else if ( command.equalsIgnoreCase("help")  || command.equalsIgnoreCase("h")) {
             help();
         }  else if ( command.equalsIgnoreCase("take")  || command.equalsIgnoreCase("t")) {
@@ -294,9 +299,7 @@ public class Game {
         }  else if ( command.equalsIgnoreCase("buy")  || command.equalsIgnoreCase("b") && currentLocale == 0) {
             buy();
         }  else if ( command.equalsIgnoreCase("accuse mr. green") || command.equalsIgnoreCase("accuse green") && currentLocale == 0 ) {
-            System.out.println("Congratulations you accused the correct person. Colonel Mustard will make sure Mr. Green is put behind bars.");
-            stillPlaying = false;
-            return;
+            stillInGame = false;
         }  else if (currentLocale == 0) {
             System.out.println("That accusation is wrong, you need to try again or reexamine all the clues.");
         }
@@ -311,9 +314,10 @@ public class Game {
                 currentLocale = newLocation;
                 moves = moves + 1;
 
+
                 if (locations[newLocation].getHasVisited() == false && newLocation != 0){
                     score = score + 5;
-                    money = money + 10;
+                    money = money + 25;
                     locations[newLocation].setHasVisited(true);
                 }
 
@@ -335,11 +339,32 @@ public class Game {
         System.out.println("   q/quit");
         System.out.println("If you are in the living room, this command works: ");
         System.out.println("   b/buy");
+        System.out.println("   accuse [insert murderer's name here]");
 
     }
 
-    private static void quit() {
-        stillPlaying = false;
+
+    private static void endgame() {
+
+     if (stillInGame == false) {
+        System.out.println("\nYou have finished the game. If you would like to see your path forwards or backwards type 'path forwards','pf', 'path backwards', or 'pb'. \n" +
+                           "[" + moves + " moves, Score: " + score + " Score Ratio: " + score + "/" + moves + "] \n" +
+                           "If you are ready to end the game type 'end' or 'e'.");
+        getCommand();
+        if (        command.equalsIgnoreCase("end")) {
+            stillPlaying = false;
+        } else if (command.equalsIgnoreCase("path forwards") || command.equalsIgnoreCase("pf")) {
+            System.out.println("forward");
+
+        } else if (command.equalsIgnoreCase("path backwards") || command.equalsIgnoreCase("pb")) {
+            System.out.println("backward");
+        }
+
+     }
+
+
+     else;
+
     }
 
 
@@ -405,48 +430,74 @@ public class Game {
         lm1.setName("Magic Items");
         lm1.setDesc("These are some of my favorite things.");
 
-
         final String fileName = "magicitems.txt";
-        readMagicItemsFromFile(fileName, lm1);
 
+        readMagicItemsFromFileToList(fileName, lm1);
         // Display the list of items.
-        System.out.println(lm1.toString());
+        // System.out.println(lm1.toString());
+
+        // Declare an array for the items.
+        ListItem[] items = new ListItem[lm1.getLength()];
+        readMagicItemsFromFileToArray(fileName, items);
+        // Display the array of items.
+        System.out.println("Items in the array BEFORE sorting:");
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] != null) {
+                System.out.println(items[i].toString());
+            }
+        }
+
+        selectionSort(items);
+
+        System.out.println("Items in the array AFTER sorting:");
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] != null) {
+                System.out.println(items[i].toString());
+            }
+        }
 
         // Ask player for an item.
         Scanner inputReader = new Scanner(System.in);
-        System.out.print("What item would you like to buy? ");
+        System.out.print("What item would you like? ");
         String targetItem = new String();
         targetItem = inputReader.nextLine();
         System.out.println();
 
         ListItem li = new ListItem();
-        li = sequentialSearch(lm1, targetItem);
-        if (li != null) {
-            System.out.println(li.toString());
-        }
+
+        li = binarySearchArray(items, targetItem);
     }
 
+    //
+    // Private
+    //
 
-    //Private List Stuff
-    private static ListItem sequentialSearch(ListMan lm,
-                                             String target) {
-
-
+    private static ListItem binarySearchArray(ListItem[] items,
+                                              String target) {
         ListItem retVal = null;
-        System.out.println("Searching for " + target + ".");
-        int counter = 0;
+        System.out.println("Binary Searching for " + target + ".");
         ListItem currentItem = new ListItem();
-        currentItem = lm.getHead();
         boolean isFound = false;
-        while ( (!isFound) && (currentItem != null) ) {
-            counter = counter +1;
+        int counter = 0;
+        int low  = 0;
+        int high = items.length-1; // because 0-based arrays
+        while ( (!isFound) && (low <= high)) {
+            int mid = Math.round((high + low) / 2);
+            currentItem = items[mid];
             if (currentItem.getName().equalsIgnoreCase(target)) {
                 // We found it!
                 isFound = true;
                 retVal = currentItem;
             } else {
                 // Keep looking.
-                currentItem = currentItem.getNext();
+                counter++;
+                if (currentItem.getName().compareToIgnoreCase(target) > 0) {
+                    // target is higher in the list than the currentItem (at mid)
+                    high = mid - 1;
+                } else {
+                    // target is lower in the list than the currentItem (at mid)
+                    low = mid + 1;
+                }
             }
         }
         if (isFound) {
@@ -470,8 +521,8 @@ public class Game {
     }
 
 
-    private static void readMagicItemsFromFile(String fileName,
-                                               ListMan lm) {
+    private static void readMagicItemsFromFileToList(String fileName,
+                                                     ListMan lm) {
         File myFile = new File(fileName);
         try {
             Scanner input = new Scanner(myFile);
@@ -482,7 +533,7 @@ public class Game {
                 // Construct a new list item and set its attributes.
                 ListItem fileItem = new ListItem();
                 fileItem.setName(itemName);
-                fileItem.setCost(Math.random() * 10);
+                fileItem.setCost(Math.random() * 100);
                 fileItem.setNext(null); // Still redundant. Still safe.
 
                 // Add the newly constructed item to the list.
@@ -493,11 +544,60 @@ public class Game {
         } catch (FileNotFoundException ex) {
             System.out.println("File not found. " + ex.toString());
         }
+
     }
 
+    private static void readMagicItemsFromFileToArray(String fileName,
+                                                      ListItem[] items) {
+        File myFile = new File(fileName);
+        try {
+            int itemCount = 0;
+            Scanner input = new Scanner(myFile);
 
+            while (input.hasNext() && itemCount < items.length) {
+                // Read a line from the file.
+                String itemName = input.nextLine();
+
+                // Construct a new list item and set its attributes.
+                ListItem fileItem = new ListItem();
+                fileItem.setName(itemName);
+                fileItem.setCost(Math.random() * 100);
+                fileItem.setNext(null); // Still redundant. Still safe.
+
+                // Add the newly constructed item to the array.
+                items[itemCount] = fileItem;
+                itemCount = itemCount + 1;
+            }
+            // Close the file.
+            input.close();
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not found. " + ex.toString());
+        }
+    }
+
+    private static void selectionSort(ListItem[] items) {
+        for (int pass = 0; pass < items.length-1; pass++) {
+            // System.out.println(pass + "-" + items[pass]);
+            int indexOfTarget = pass;
+            int indexOfSmallest = indexOfTarget;
+            for (int j = indexOfTarget+1; j < items.length; j++) {
+                if (items[j].getName().compareToIgnoreCase(items[indexOfSmallest].getName()) < 0) {
+                    indexOfSmallest = j;
+                }
+            }
+            ListItem temp = items[indexOfTarget];
+            items[indexOfTarget] = items[indexOfSmallest];
+            items[indexOfSmallest] = temp;
+        }
+    }
 
 }
+
+
+
+
+
+
 
 
 
