@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class Game {
     //Charlie Hill
     //Professor Labouseur
-    //Software Development 1 - Project Three
-    //10 April 2014
+    //Software Development 1 - Project Four
+    //9 May 2014
 
     // Globals
     public static final boolean DEBUGGING = false;   // Debugging flag.
