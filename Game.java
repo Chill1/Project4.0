@@ -1,3 +1,5 @@
+import com.sun.java_cup.internal.runtime.virtual_parse_stack;
+
 import java.util.Scanner;
 import java.io.*;
 import java.util.ArrayList;
@@ -19,6 +21,8 @@ public class Game {
     public static Items[] taken;
     public static Locale[] locations;               // An uninitialized array of type Locale. See init() for initialization.
     public static ArrayList<String> ShopInventory = new ArrayList<String>();
+    public static Queue myQueue = new Queue();      //This is the only queue that is used so it is alright if it remains as 'myQueue'
+    public static Stack myStack = new Stack();      //This is the only stack this is uses so it is alright if it remain as 'myStack'
     public static int[][]  nav;                     // An uninitialized array of type int int.
     public static int moves = 0;                    // Counter of the player's moves.
     public static int score = 0;                    // Tracker of the player's score.
@@ -313,6 +317,13 @@ public class Game {
             } else {
                 currentLocale = newLocation;
                 moves = moves + 1;
+                try{
+                    myQueue.enqueue(locations[currentLocale].getId());
+                    myStack.push(locations[currentLocale].getId());
+                }  catch (Exception ex) {
+                    System.out.println("Caught exception: " + ex.getMessage());
+                };
+
 
 
                 if (locations[newLocation].getHasVisited() == false && newLocation != 0){
@@ -354,10 +365,10 @@ public class Game {
         if (        command.equalsIgnoreCase("end")) {
             stillPlaying = false;
         } else if (command.equalsIgnoreCase("path forwards") || command.equalsIgnoreCase("pf")) {
-            System.out.println("forward");
+            forwards();
 
         } else if (command.equalsIgnoreCase("path backwards") || command.equalsIgnoreCase("pb")) {
-            System.out.println("backward");
+            backwards();
         }
 
      }
@@ -367,6 +378,105 @@ public class Game {
 
     }
 
+    private static void forwards() {
+        System.out.println("Your Path Forwards:");
+        System.out.println("Is Empty: " + myQueue.isEmpty());
+        System.out.println("Capacity: " + myQueue.getCapacity());
+
+        try {
+            //Prints out up to 30 Locations
+            System.out.println("Locations: ");
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+            System.out.println(locations[myQueue.dequeue()].getName());
+
+
+        } catch (Exception ex) {
+            System.out.println("Caught exception: " + ex.getMessage());
+        }
+    }
+
+    private static void backwards() {
+        System.out.println("Your Path Backwards:");
+        System.out.println("Is Empty: " + myStack.isEmpty());
+        System.out.println("Capacity: " + myStack.getCapacity());
+
+        try{
+            //Prints out up to 30 Locations
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+            System.out.println(locations[myStack.pop()].getName());
+
+        } catch (Exception ex) {
+            System.out.println("Caught exception: " + ex.getMessage());
+        }
+
+
+    }
 
 
 
